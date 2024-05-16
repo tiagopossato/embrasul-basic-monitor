@@ -1,0 +1,15 @@
+[Unit]
+Description=Service to read data from Modbus Embrasul Basic line
+After=multi-user.target
+
+[Service]
+User=#user#
+
+WorkingDirectory=/opt/monitor/modbus_getter
+Environment="PATH=/opt/monitor/env/bin"
+ExecStart=python3 modbus_getter.py
+Restart=always
+RestartSec=30s
+
+[Install]
+WantedBy=multi-user.target
