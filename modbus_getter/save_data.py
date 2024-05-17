@@ -55,7 +55,7 @@ def save_data(point, value, datetime, session):
     try:
         # create the data object
         data = Data(
-            point = '"'+point+'"',
+            point = point,
             value = {"value": value},
             datetime = datetime)
         # save the data
