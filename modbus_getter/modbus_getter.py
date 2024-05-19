@@ -20,26 +20,13 @@ def transform_float(values):
     float_number = struct.unpack('<f', combined_value)[0]
     return float_number
 
-FreqA = Point('FreqA', base_address=66, count=2)
-FreqA.set_transformer(transform_float)
-
-UrmsA = Point('UrmsA', base_address=68, count=2)
-UrmsA.set_transformer(transform_float)
-
-IrmsA = Point('IrmsA', base_address=74, count=2)
-IrmsA.set_transformer(transform_float)
-
-PotAtivA = Point('PotAtivA', base_address=80, count=2)
-PotAtivA.set_transformer(transform_float)
-
-PotReatA = Point('PotReatA', base_address=88, count=2)
-PotReatA.set_transformer(transform_float)
-
-PotAparA = Point('PotAparA', base_address=96, count=2)
-PotAparA.set_transformer(transform_float)
-
-FatPotA = Point('FatPotA', base_address=104, count=2)
-FatPotA.set_transformer(transform_float)
+FreqA = Point('FreqA', base_address=66, count=2, update_interval=5, transformer=transform_float)
+UrmsA = Point('UrmsA', base_address=68, count=2, update_interval=5, transformer=transform_float)
+IrmsA = Point('IrmsA', base_address=74, count=2, update_interval=5, transformer=transform_float)
+PotAtivA = Point('PotAtivA', base_address=80, count=2, update_interval=5, transformer=transform_float)
+PotReatA = Point('PotReatA', base_address=88, count=2, update_interval=5, transformer=transform_float)
+PotAparA = Point('PotAparA', base_address=96, count=2, update_interval=5, transformer=transform_float)
+FatPotA = Point('FatPotA', base_address=104, count=2, update_interval=5, transformer=transform_float)
 
 
 if __name__ == '__main__':
@@ -57,11 +44,10 @@ if __name__ == '__main__':
     while(True):
         try:
             for data in PointList:
-                current_time = int(time())
                 data.update_value(int(config['serial_port']['slave_id']), modbus_client)
                 save_data(point=data.get_name(), value=data.get_value(), datetime=time(), session=session)
                 sleep(.1)
-            sleep(5)
+            sleep(1)
         except Exception as e:
             logging.exception(e)
             sleep(10)
