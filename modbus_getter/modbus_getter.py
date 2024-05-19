@@ -1,7 +1,6 @@
 from time import sleep
 from time import time
 from pymodbus.client import ModbusSerialClient as ModbusClient
-from pymodbus.exceptions import ModbusIOException
 import logging
 import struct
 from read_config import read_config
@@ -44,8 +43,8 @@ if __name__ == '__main__':
     while(True):
         try:
             for data in PointList:
-                data.update_value(int(config['serial_port']['slave_id']), modbus_client)
-                save_data(point=data.get_name(), value=data.get_value(), datetime=time(), session=session)
+                if(data.update_value(int(config['serial_port']['slave_id']), modbus_client)):
+                    save_data(point=data.get_name(), value=data.get_value(), datetime=time(), session=session)
                 sleep(.1)
             sleep(1)
         except Exception as e:

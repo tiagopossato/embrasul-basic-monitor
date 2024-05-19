@@ -2,6 +2,7 @@ import logging
 import pytz
 from datetime import datetime
 from time import time
+from pymodbus.exceptions import ConnectionException
 
 tz = pytz.timezone('America/Sao_Paulo')
 
@@ -34,14 +35,17 @@ class Point:
 
     def update_value(self, slave_id, modbus_client):
         if time() - self.__last_update < self.__update_interval:
-            return
+            return False
         
         with modbus_client:
-            read = modbus_client.read_holding_registers(address=self.__base_address, count=self.__count, slave=slave_id)
-            if (read.isError()):
-                logging.error(f'Slave id {slave_id}. {read.message}')
-                return
-
+            try:
+                read = modbus_client.read_holding_registers(address=self.__base_address, count=self.__count, slave=slave_id)
+                if (read.isError()):
+                    logging.error(f'Slave id {slave_id}. Point: {self.get_name()}: {read.message}')
+                    return False
+            except ConnectionException:
+                logging.error(f"ConnectionException: Slave id {slave_id}. Point: {self.get_name()}")
+                return False
         # return [(read.registers[0] if read.registers[0] < 32769 else read.registers[0]-65535)/100,
         # (read.registers[1] if read.registers[1] < 32769 else read.registers[1]-65535)/100]
         if(hasattr(self.__transformer, '__call__')):
@@ -51,6 +55,7 @@ class Point:
         
         self.__datetime = datetime.fromtimestamp(time(), tz)
         self.__last_update = time()
+        return True
         
     def get_json_value(self):
         if(self.get_value() is None):
