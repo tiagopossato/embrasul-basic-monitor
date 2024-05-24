@@ -32,6 +32,16 @@ IrmsA.set_transformer(transform_float)
 PotAtivA = Point('PotAtivA', base_address=80, count=2)
 PotAtivA.set_transformer(transform_float)
 
+PotAtivT = Point('PotAtivT', base_address=86, count=2)
+
+def transform_float_PotAtivT(value):
+    """
+    Estiva a potencia ativa total multiplicando a potencia da Fase Ativa atual por 3.
+    Atualmente a potencia ativa total é a mesma da Fase A, por que está sendo medido somente uma fase
+    """
+    return transform_float(value) * 3
+PotAtivT.set_transformer(transform_float_PotAtivT)
+
 PotReatA = Point('PotReatA', base_address=88, count=2)
 PotReatA.set_transformer(transform_float)
 
@@ -40,6 +50,10 @@ PotAparA.set_transformer(transform_float)
 
 FatPotA = Point('FatPotA', base_address=104, count=2)
 FatPotA.set_transformer(transform_float)
+
+
+MMDemP = Point('MMDemP', base_address=602, count=2)
+MMDemP.set_transformer(transform_float)
 
 
 if __name__ == '__main__':
