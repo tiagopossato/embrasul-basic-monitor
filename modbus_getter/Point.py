@@ -31,7 +31,7 @@ class Point:
         return self.__name
         
     def get_value(self):
-        return self.__value
+        return self.__value     
 
     def update_value(self, slave_id, modbus_client):
         if time() - self.__last_update < self.__update_interval:
