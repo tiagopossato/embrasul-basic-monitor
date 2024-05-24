@@ -19,13 +19,23 @@ def transform_float(values):
     float_number = struct.unpack('<f', combined_value)[0]
     return float_number
 
+def transform_float_PotAtivT(value):
+    """
+    Estiva a potencia ativa total multiplicando a potencia da Fase Ativa atual por 3.
+    Atualmente a potencia ativa total é a mesma da Fase A, por que está sendo medido somente uma fase
+    """
+    return transform_float(value) * 3
+
 FreqA = Point('FreqA', base_address=66, count=2, update_interval=5, transformer=transform_float)
 UrmsA = Point('UrmsA', base_address=68, count=2, update_interval=5, transformer=transform_float)
+UrmsB = Point('UrmsB', base_address=70, count=2, update_interval=5, transformer=transform_float)
+UrmsC = Point('UrmsC', base_address=72, count=2, update_interval=5, transformer=transform_float)
 IrmsA = Point('IrmsA', base_address=74, count=2, update_interval=5, transformer=transform_float)
 PotAtivA = Point('PotAtivA', base_address=80, count=2, update_interval=5, transformer=transform_float)
 PotReatA = Point('PotReatA', base_address=88, count=2, update_interval=5, transformer=transform_float)
 PotAparA = Point('PotAparA', base_address=96, count=2, update_interval=5, transformer=transform_float)
 FatPotA = Point('FatPotA', base_address=104, count=2, update_interval=5, transformer=transform_float)
+PotAtivT = Point('PotAtivT', base_address=86, count=2, update_interval=5, transformer=transform_float_PotAtivT)
 
 
 if __name__ == '__main__':
