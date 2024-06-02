@@ -1,0 +1,2 @@
+- Adicionar ao grupo de pontos (ou ao modelo?) os parametros para pegar os dados no controlador, todos de uma vez
+- incluir o tempo de atualização
