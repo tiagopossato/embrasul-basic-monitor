@@ -9,7 +9,7 @@ import json
 from . import static_type, access_type, mandatory_type, point_type
 
 class Point():
-    def __init__(self, id: str, label: str, description: str, pt_type: point_type, sf: int, units: str,
+    def __init__(self, id: str, name:str, label: str, description: str, pt_type: point_type, sf: int, units: str,
                  access: access_type, mandatory: mandatory_type, static: static_type,
                  get_value_fn = None, set_value_fn = None, validate_set_value_fn = None) -> None:   
         """
@@ -17,6 +17,7 @@ class Point():
 
         Parameters:
         - id (str): The ID of the point, must be unique and consist of alphanumeric characters and underscores only.
+        - name (str): The name of the point
         - label (str): A short label associated with the point.
         - description (str): A brief description of the point.
         - pt_type: The type of the point.
@@ -32,6 +33,10 @@ class Point():
         # Validate id using regular expression
         if not re.match(r'^[a-zA-Z0-9_]+$', id):
             raise ValueError("Invalid id format. ID must consist of only alphanumeric characters and underscores.")
+        
+        # Validate name
+        if not isinstance(name, str):
+            raise TypeError("Name must be a string.")
         
         # Validate label
         if not isinstance(label, str):
@@ -70,6 +75,8 @@ class Point():
         # The ID attribute for a model element MUST be the numeric SunSpec model id.
         self.__id = id
 
+        self.__name = name
+    
         self.__value = None
     
         # The type attribute is the element type.
@@ -122,7 +129,10 @@ class Point():
     
     def get_id(self):
         return self.__id
-
+    
+    def get_name(self):
+        return self.__name
+    
     def get_type(self):
         return self.__type
 
@@ -175,9 +185,10 @@ class Point():
         """
         point_dict = {
             "id": self.get_id(),
+            "name": self.get_name(),
             "value": self.get_value(),
             "label": self.get_label(),
-            "description": self.get_description(),
+            "desc": self.get_description(),
             "type": self.get_type().name,
             "size": self.get_size() if hasattr(self, 'get_size') else None,
             "sf": self.get_sf(),
