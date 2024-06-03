@@ -1,6 +1,7 @@
 from . import Model
 
 from typing import List
+import json
 
 class SunSpec():
     def __init__(self, models: List[Model] = None) -> None:
@@ -39,3 +40,24 @@ class SunSpec():
             raise TypeError("model must be a Model object.")
         
         self.__models.append(model)
+
+    def models_to_dict(self):
+        js_models = []
+        for model in self.__models: 
+            js_models.append(model.to_dict())
+        return js_models
+    
+
+    def to_dict(self):
+        # Cria um dicionário apenas com chaves que têm valores diferentes de None
+        return {
+            key: value
+            for key, value in {
+                "models": self.models_to_dict()
+            }.items()
+            if value is not None
+        }
+    
+    def to_json(self):        
+        return json.dumps(self.to_dict(), indent=4)
+

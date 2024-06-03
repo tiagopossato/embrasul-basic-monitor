@@ -9,8 +9,9 @@ import json
 from . import static_type, access_type, mandatory_type, point_type
 
 class Point():
-    def __init__(self, id: str, name:str, label: str, description: str, pt_type: point_type, sf: int, units: str,
-                 access: access_type, mandatory: mandatory_type, static: static_type,
+    def __init__(self, id: str, name: str, label: str, description: str, pt_type: point_type, sf: int, units: str,
+                 access: access_type = access_type.RW, mandatory: mandatory_type = mandatory_type.M, 
+                 static: static_type = static_type.D,
                  get_value_fn = None, set_value_fn = None, validate_set_value_fn = None) -> None:   
         """
         Initializes a Point object.
@@ -88,7 +89,7 @@ class Point():
         # The size attribute specifies the maximum element length in 16-bit words. The size attribute
         # MUST be provided for the string point type and MAY be provided for the pad type. 
         # The size attribute MUST not be provided for any other type.
-        if( self.__type == point_type.pt_string):
+        if( self.__type == point_type.string):
             self.__size = 1
 
         # As an alternative to floating-point format, values are represented by integer values with a signed
@@ -130,7 +131,7 @@ class Point():
     def get_id(self):
         return self.__id
     
-    def get_name(self):
+    def get_name(self) -> str:
         return self.__name
     
     def get_type(self):
@@ -176,6 +177,27 @@ class Point():
             return self.__validate_set_value(value)
         return True
     
+    def to_dict(self):
+        return {
+            key: value
+            for key, value in {
+                "id": self.get_id(),
+                "name": self.get_name(),
+                "value": self.get_value(),
+                "label": self.get_label(),
+                "desc": self.get_description(),
+                "type": self.get_type().name,
+                "size": self.get_size() if hasattr(self, 'get_size') else None,
+                "sf": self.get_sf(),
+                "units": self.get_units(),
+                "access": self.get_access().name,
+                "mandatory": self.get_mandatory().name,
+                "static": self.get_static().name
+                # Add other attributes as needed
+            }.items()
+            if value is not None
+        }
+    
     def to_json(self):
         """
         Convert Point object to JSON format.
@@ -183,19 +205,4 @@ class Point():
         Returns:
         - str: JSON representation of the Point object.
         """
-        point_dict = {
-            "id": self.get_id(),
-            "name": self.get_name(),
-            "value": self.get_value(),
-            "label": self.get_label(),
-            "desc": self.get_description(),
-            "type": self.get_type().name,
-            "size": self.get_size() if hasattr(self, 'get_size') else None,
-            "sf": self.get_sf(),
-            "units": self.get_units(),
-            "access": self.get_access().name,
-            "mandatory": self.get_mandatory().name,
-            "static": self.get_static().name
-            # Add other attributes as needed
-        }
-        return json.dumps(point_dict, indent=4)
+        return json.dumps(self.to_dict(), indent=4)

@@ -13,15 +13,17 @@ that the points in the group must be read and written atomically.
 from . import group_type, Point
 from typing import List
 import re
+import json
 
 class PointGroup():
-    def __init__(self,id:str, label:str, description: str, points: List[Point], 
-                 gp_type: group_type = group_type.gt_group) -> None:
+    def __init__(self,id:str, name: str, label:str, description: str, points: List[Point], 
+                 gp_type: group_type = group_type.group) -> None:
         """
         Initializes a Group object.
 
         Parameters:
         - id (str): The ID of the group.
+        - name (str): The name of the group        
         - label (str): A short label associated with the group.
         - description (str): A brief description of the group.
         - points (List[Point]): List of Point objects associated with the group.
@@ -30,6 +32,10 @@ class PointGroup():
         # Validate id using regular expression
         if not re.match(r'^[a-zA-Z0-9_]+$', id):
             raise ValueError("Invalid id format. ID must consist of only alphanumeric characters and underscores.")
+  
+       # Validate name
+        if not isinstance(name, str):
+            raise TypeError("Name must be a string.")
         
         # Validate label
         if not isinstance(label, str):
@@ -48,6 +54,7 @@ class PointGroup():
             raise TypeError("gp_type must be of type group_type.")
         
         self.__id = id
+        self.__name = name
         self.__label = label
         self.__description = description
         self.__points = points
@@ -55,16 +62,19 @@ class PointGroup():
     
     def get_id(self) -> str:
         return self.__id
-
+    
+    def get_name(self) -> str:
+        return self.__name
+    
     def get_label(self) -> str:
         return self.__label
 
     def get_description(self) -> str:
         return self.__description
 
-    def get_points(self) -> List[Point]:
+    def get_points(self) -> str:
         return self.__points
-
+    
     def get_gp_type(self) -> group_type:
         return self.__gp_type
     
@@ -79,3 +89,26 @@ class PointGroup():
             raise TypeError("point must be a Point object.")
         
         self.__points.append(point)
+
+    def points_to_dict(self):
+        js_points = []
+        for point in self.__points: 
+            js_points.append(point.to_dict())
+        return js_points
+    
+    def to_dict(self):
+        return {
+            key: value
+            for key, value in {
+                "desc": self.get_description(),
+                "label": self.get_label(),
+                "name": self.get_name(),
+                "type": self.get_gp_type().name,
+                "points": self.points_to_dict()
+                # Add other attributes as needed
+            }.items()
+            if value is not None
+        }
+    
+    def to_json(self) -> str:
+        return json.dumps(self.to_dict(), indent=4)
