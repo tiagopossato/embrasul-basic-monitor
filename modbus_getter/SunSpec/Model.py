@@ -114,7 +114,7 @@ class Model():
         
         return data
 
-    def update(self, modbus_client, slave_id):
+    def update(self, modbus_client, slave_id, fn_save_data, db_session):
         
         if time() - self.get_last_update() < self.get_update_interval():
             return
@@ -126,7 +126,7 @@ class Model():
                     logging.error(f'Slave id {slave_id}. Model: {self.get_group().get_name()}: {read.message}')
                     return
             except ConnectionException:
-                logging.error(f"ConnectionException: Slave id {slave_id}. Point: {self.get_name()}")
+                logging.error(f"ConnectionException: Slave id {slave_id}. Point: {self.get_group().get_name()}")
                 return
         # data read, decode and fill points
         registers = read.registers
@@ -134,6 +134,7 @@ class Model():
             size = point.get_size()
             value = transformer_value(point.get_type(), registers[0 : size])
             point.set_value(value)
+            fn_save_data(point=point.get_id(), value=point.get_value(), datetime=time(), session=db_session)
             del registers[0 : size]
 
         self.set_last_update(time())

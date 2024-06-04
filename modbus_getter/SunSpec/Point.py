@@ -155,7 +155,7 @@ class Point():
                 "label": self.get_label(),
                 "desc": self.get_description(),
                 "type": self.get_type().name,
-                "size": self.get_size() if hasattr(self, 'get_size') else None,
+                "size": self.get_size(),
                 "sf": self.get_sf(),
                 "units": self.get_units(),
                 "access": self.get_access().name,

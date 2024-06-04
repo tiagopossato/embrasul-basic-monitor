@@ -59,7 +59,7 @@ class SunSpec():
     def to_json(self):        
         return json.dumps(self.to_dict(), indent=4)
 
-    def update(self):  
+    def update(self, fn_save_data, db_session):  
         for model in self.get_models():
-            model.update(self.__modbus_client, self.__slave_id)
+            model.update(self.__modbus_client, self.__slave_id, fn_save_data, db_session)
             
