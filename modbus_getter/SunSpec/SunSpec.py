@@ -1,25 +1,35 @@
-from . import Model
-
 from typing import List
 import json
+from time import time
+
+from pymodbus.exceptions import ConnectionException
+import logging
+
+from . import Model
+from .transformers import transformer_value
+
+logging.basicConfig(level=logging.ERROR, format='(%(threadName)-9s) %(message)s',)
+
 
 class SunSpec():
-    def __init__(self, models: List[Model] = None) -> None:
+    def __init__(self, slave_id:int, modbus_client, models: List[Model] = None) -> None:
         """
         Initializes a SunSpec object.
 
         Parameters:
+        - slave_id (int): Address of modbus slave
+        - modbus_client (ModbusClient): Modbus Client
         - models (List[Model], optional): List of Model objects associated with the SunSpec.
         """
-        if models is None:
-            models = []
-        else:
-            # Validate models
-            if not isinstance(models, list) or not all(isinstance(m, Model) for m in models):
-                raise TypeError("Models must be a list of Model objects.")
+        # Validate models
+        if not isinstance(models, list) or not all(isinstance(m, Model) for m in models):
+            raise TypeError("Models must be a list of Model objects.")
         
         self.__models = models
+        self.__slave_id = slave_id
+        self.__modbus_client = modbus_client
     
+
     def get_models(self) -> List[Model]:
         """
         Get the list of models associated with the SunSpec.
@@ -28,18 +38,6 @@ class SunSpec():
         - List[Model]: List of Model objects.
         """
         return self.__models
-    
-    def add_model(self, model: Model) -> None:
-        """
-        Add a Model object to the list of models associated with the SunSpec.
-
-        Parameters:
-        - model (Model): The Model object to be added.
-        """
-        if not isinstance(model, Model):
-            raise TypeError("model must be a Model object.")
-        
-        self.__models.append(model)
 
     def models_to_dict(self):
         js_models = []
@@ -61,3 +59,7 @@ class SunSpec():
     def to_json(self):        
         return json.dumps(self.to_dict(), indent=4)
 
+    def update(self):  
+        for model in self.get_models():
+            model.update(self.__modbus_client, self.__slave_id)
+            

@@ -16,7 +16,7 @@ import re
 import json
 
 class PointGroup():
-    def __init__(self,id:str, name: str, label:str, description: str, points: List[Point], 
+    def __init__(self,id:str, name: str, label:str, points: List[Point], 
                  gp_type: group_type = group_type.group) -> None:
         """
         Initializes a Group object.
@@ -27,7 +27,7 @@ class PointGroup():
         - label (str): A short label associated with the group.
         - description (str): A brief description of the group.
         - points (List[Point]): List of Point objects associated with the group.
-        - gp_type (group_type): The type of the group (default is gt_group).
+        - gp_type (group_type): The type of the group (default is group).
         """
         # Validate id using regular expression
         if not re.match(r'^[a-zA-Z0-9_]+$', id):
@@ -42,8 +42,8 @@ class PointGroup():
             raise TypeError("Label must be a string.")
         
         # Validate description
-        if not isinstance(description, str):
-            raise TypeError("Description must be a string.")
+        # if not isinstance(description, str):
+        #     raise TypeError("Description must be a string.")
         
         # Validate points
         if not isinstance(points, list) or not all(isinstance(p, Point) for p in points):
@@ -56,7 +56,7 @@ class PointGroup():
         self.__id = id
         self.__name = name
         self.__label = label
-        self.__description = description
+        # self.__description = description
         self.__points = points
         self.__gp_type = gp_type
     
@@ -100,7 +100,7 @@ class PointGroup():
         return {
             key: value
             for key, value in {
-                "desc": self.get_description(),
+                # "desc": self.get_description(),
                 "label": self.get_label(),
                 "name": self.get_name(),
                 "type": self.get_gp_type().name,

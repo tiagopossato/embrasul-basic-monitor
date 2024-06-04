@@ -48,7 +48,7 @@ if __name__ == '__main__':
     modbus_client = ModbusClient(method='rtu', port=config['serial_port']['port'], 
                           baudrate=int(config['serial_port']['baudrate']), 
                           timeout=float(config['serial_port']['timeout']),
-                          parity='N', stopbits=2, retry_on_empty=2, reconnect_delay=0.5)
+                          parity='N', stopbits=2, retry_on_empty=2, reconnect_delay=0.1)
 
     while(True):
         try:

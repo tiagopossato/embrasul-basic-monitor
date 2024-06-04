@@ -9,16 +9,14 @@ import json
 from . import static_type, access_type, mandatory_type, point_type
 
 class Point():
-    def __init__(self, id: str, name: str, label: str, description: str, pt_type: point_type, sf: int, units: str,
-                 access: access_type = access_type.RW, mandatory: mandatory_type = mandatory_type.M, 
-                 static: static_type = static_type.D,
-                 get_value_fn = None, set_value_fn = None, validate_set_value_fn = None) -> None:   
+    def __init__(self, id: str, size: int, label: str, description: str, pt_type: point_type, units: str, sf: int = 1, 
+                 access: access_type = access_type.R, mandatory: mandatory_type = mandatory_type.M, static: static_type = static_type.D) -> None:   
         """
         Initializes a Point object.
 
         Parameters:
         - id (str): The ID of the point, must be unique and consist of alphanumeric characters and underscores only.
-        - name (str): The name of the point
+        - size (int): Data size in modbus equipment
         - label (str): A short label associated with the point.
         - description (str): A brief description of the point.
         - pt_type: The type of the point.
@@ -27,18 +25,11 @@ class Point():
         - access: The accessibility of the point, can be 'R' for read-only or 'RW' for read/write.
         - mandatory: The mandatory status of the point, can be 'M' for mandatory or 'O' for optional.
         - static: Whether the point is static or dynamic.
-        - get_value_fn (optional function): A function to get the value of the point.
-        - set_value_fn (optional function): A function to set the value of the point.
-        - validate_set_value_fn (optional function): A function to validate the value to be set on the point.
         """
         # Validate id using regular expression
         if not re.match(r'^[a-zA-Z0-9_]+$', id):
             raise ValueError("Invalid id format. ID must consist of only alphanumeric characters and underscores.")
-        
-        # Validate name
-        if not isinstance(name, str):
-            raise TypeError("Name must be a string.")
-        
+               
         # Validate label
         if not isinstance(label, str):
             raise TypeError("Label must be a string.")
@@ -75,9 +66,7 @@ class Point():
         # defined. An ID MUST consist of only alphanumeric characters and the underscore character.
         # The ID attribute for a model element MUST be the numeric SunSpec model id.
         self.__id = id
-
-        self.__name = name
-    
+  
         self.__value = None
     
         # The type attribute is the element type.
@@ -89,8 +78,7 @@ class Point():
         # The size attribute specifies the maximum element length in 16-bit words. The size attribute
         # MUST be provided for the string point type and MAY be provided for the pad type. 
         # The size attribute MUST not be provided for any other type.
-        if( self.__type == point_type.string):
-            self.__size = 1
+        self.__size = size
 
         # As an alternative to floating-point format, values are represented by integer values with a signed
         # scale factor applied. A negative scale factor explicitly shifts the decimal point to the left, and a
@@ -121,19 +109,10 @@ class Point():
 
         # The description attribute provides a brief description of the element.
         self.__description = description
-
-        self.__get_value = get_value_fn
-
-        self.__set_value = set_value_fn
-        
-        self.__validate_set_value = validate_set_value_fn
     
     def get_id(self):
         return self.__id
-    
-    def get_name(self) -> str:
-        return self.__name
-    
+      
     def get_type(self):
         return self.__type
 
@@ -162,27 +141,16 @@ class Point():
         return self.__description
     
     def get_value(self):
-        if(self.__get_value):
-            return self.__get_value(self.__value)
-        return self.__value
+      return self.__value
     
     def set_value(self, value):
-        if(self.__set_value):
-            self.__value = self.__set_value(value)
-        else: 
-            self.__value = value
-    
-    def validate_set_value(self, value):
-        if(self.__validate_set_value):
-            return self.__validate_set_value(value)
-        return True
+        self.__value = value
     
     def to_dict(self):
         return {
             key: value
             for key, value in {
                 "id": self.get_id(),
-                "name": self.get_name(),
                 "value": self.get_value(),
                 "label": self.get_label(),
                 "desc": self.get_description(),
@@ -197,6 +165,9 @@ class Point():
             }.items()
             if value is not None
         }
+
+    def get_value_to_dict(self):
+        return {self.get_id(): self.get_value()}
     
     def to_json(self):
         """
