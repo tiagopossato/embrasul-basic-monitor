@@ -138,4 +138,4 @@ class Model():
             del registers[0 : size]
 
         self.set_last_update(time())
-        print(self.points_value_to_dict())
+        # print(self.points_value_to_dict())

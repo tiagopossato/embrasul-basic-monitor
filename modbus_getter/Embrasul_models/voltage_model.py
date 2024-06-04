@@ -1,6 +1,6 @@
 from SunSpec import Model, PointGroup, Point, point_type
 
-voltage_model = Model(id=1, start_address=68, update_interval=2,
+voltage_model = Model(id=1, start_address=68, update_interval=5,
     group = PointGroup(id="1", name="Tensão", label="Valores de tensão", 
     points = [
         Point(id='UrmsA', size=2, label='Tensão A', description='Tensão RMS na fase A',  pt_type=point_type.float32, units="V"),
