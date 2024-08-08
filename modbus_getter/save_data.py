@@ -65,3 +65,6 @@ def save_data(point, value, datetime, session):
         print(data)
     except Exception as e:
         print(f'save_data error: {e}')
+        if "Please rollback()" in str(e):
+            session.rollback()
+            save_data(point, value, datetime, session)
