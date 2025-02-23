@@ -12,7 +12,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, JSON, DateTime, String
 
 # path to the database
-DB_PATH = "/opt/monitor/db/monitor.db"
+# DB_PATH = "/opt/monitor/db/monitor.db"
+DB_PATH = "./monitor.db"
 
 # create the database
 Base = declarative_base()

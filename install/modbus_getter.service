@@ -6,8 +6,8 @@ After=multi-user.target
 User=#user#
 
 WorkingDirectory=/opt/monitor/modbus_getter
-Environment="PATH=/opt/monitor/env/bin"
-ExecStart=python3 modbus_getter.py
+# Environment="PATH=/opt/monitor/env/bin"
+ExecStart=/opt/monitor/env/bin/python3 /opt/monitor/modbus_getter/modbus_getter.py
 Restart=always
 RestartSec=30s
 
