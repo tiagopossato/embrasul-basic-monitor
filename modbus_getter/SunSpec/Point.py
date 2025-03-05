@@ -5,7 +5,6 @@ the model definition.
 """
 import re
 import json
-
 from . import static_type, access_type, mandatory_type, point_type
 
 class Point():
@@ -65,12 +64,12 @@ class Point():
         # The ID attribute is the element name and MUST be unique in the immediate group in which it is
         # defined. An ID MUST consist of only alphanumeric characters and the underscore character.
         # The ID attribute for a model element MUST be the numeric SunSpec model id.
-        self.__id = id
+        self._id = id
   
-        self.__value = None
+        self._value = None
     
         # The type attribute is the element type.
-        self.__type = pt_type
+        self._type = pt_type
 
         # The count attribute specifies the number of occurrences of the element in the model.
         self.count = 1 
@@ -78,73 +77,79 @@ class Point():
         # The size attribute specifies the maximum element length in 16-bit words. The size attribute
         # MUST be provided for the string point type and MAY be provided for the pad type. 
         # The size attribute MUST not be provided for any other type.
-        self.__size = size
+        self._size = size
 
         # As an alternative to floating-point format, values are represented by integer values with a signed
         # scale factor applied. A negative scale factor explicitly shifts the decimal point to the left, and a
         # positive scale factor shifts the decimal point to the right by the number of places specified in the
         # scale factor value.
-        self.__sf = sf
+        self._sf = sf
 
         # The units attribute is a string that specifies the units associated with the element.
         # Units are defined as needed by specific models. Where units are shared across models, care is
         # taken to ensure a common definition of those units.
-        self.__units = units
+        self._units = units
         
         # The access attribute specifies if the element is writable or read-only. If specified, the value
         # MUST be read-only (R) or read/write (RW). If not specified, the default access is read-only.
-        self.__access = access
+        self._access = access
 
         #The mandatory attribute specifies whether the element is required to be implemented. If
         # specified, the value MUST be either mandatory (M) or optional (O). If not specified, the default
         # value is optional. Points specified as mandatory MUST always have a valid value. Points
         # specified as optional may have the unimplemented value for the corresponding point type.
-        self.__mandatory = mandatory
+        self._mandatory = mandatory
 
         # if the point is static or dynamic
-        self.__static = static
+        self._static = static
 
         # The label attribute specifies a short label associated with the element.
-        self.__label = label
+        self._label = label
 
         # The description attribute provides a brief description of the element.
-        self.__description = description
+        self._description = description
     
+        self._last_update = 0
+
     def get_id(self):
-        return self.__id
+        return self._id
       
     def get_type(self):
-        return self.__type
+        return self._type
 
     def get_size(self):
-        return self.__size
+        return self._size
 
     def get_sf(self):
-        return self.__sf
+        return self._sf
 
     def get_units(self):
-        return self.__units
+        return self._units
 
     def get_access(self):
-        return self.__access
+        return self._access
 
     def get_mandatory(self):
-        return self.__mandatory
+        return self._mandatory
 
     def get_static(self):
-        return self.__static
+        return self._static
 
     def get_label(self):
-        return self.__label
+        return self._label
 
     def get_description(self):
-        return self.__description
+        return self._description
     
     def get_value(self):
-      return self.__value
+      return self._value
     
-    def set_value(self, value):
-        self.__value = value
+    def get_last_update(self):
+      return self._last_update
+    
+    def set_value(self, value, dt):
+        self._value = value
+        self._last_update = dt
     
     def to_dict(self):
         return {
@@ -160,8 +165,8 @@ class Point():
                 "units": self.get_units(),
                 "access": self.get_access().name,
                 "mandatory": self.get_mandatory().name,
-                "static": self.get_static().name
-                # Add other attributes as needed
+                "static": self.get_static().name,
+                "last_update": self.get_last_update()
             }.items()
             if value is not None
         }

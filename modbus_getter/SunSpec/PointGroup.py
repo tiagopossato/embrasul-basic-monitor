@@ -53,30 +53,30 @@ class PointGroup():
         if not isinstance(gp_type, group_type):
             raise TypeError("gp_type must be of type group_type.")
         
-        self.__id = id
-        self.__name = name
-        self.__label = label
-        # self.__description = description
-        self.__points = points
-        self.__gp_type = gp_type
+        self._id = id
+        self._name = name
+        self._label = label
+        # self._description = description
+        self._points = points
+        self._gp_type = gp_type
     
     def get_id(self) -> str:
-        return self.__id
+        return self._id
     
     def get_name(self) -> str:
-        return self.__name
+        return self._name
     
     def get_label(self) -> str:
-        return self.__label
+        return self._label
 
     def get_description(self) -> str:
-        return self.__description
+        return self._description
 
     def get_points(self) -> str:
-        return self.__points
+        return self._points
     
     def get_gp_type(self) -> group_type:
-        return self.__gp_type
+        return self._gp_type
     
     def add_point(self, point: Point) -> None:
         """
@@ -88,11 +88,11 @@ class PointGroup():
         if not isinstance(point, Point):
             raise TypeError("point must be a Point object.")
         
-        self.__points.append(point)
+        self._points.append(point)
 
     def points_to_dict(self):
         js_points = []
-        for point in self.__points: 
+        for point in self._points: 
             js_points.append(point.to_dict())
         return js_points
     

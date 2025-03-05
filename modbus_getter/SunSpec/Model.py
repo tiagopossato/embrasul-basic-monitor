@@ -7,21 +7,24 @@ A Point Group as one or more Point
 
 One or more Models belong to SunSpec
 """
-import re
+from enum import Enum
 import json
 from time import time
-
 from pymodbus.exceptions import ConnectionException
 import logging
-
 from .transformers import transformer_value
+from . import PointGroup
 
 logging.basicConfig(level=logging.ERROR, format='(%(threadName)-9s) %(message)s',)
 
-from . import PointGroup
+class RegisterType(Enum):
+    INPUT_REGISTER = 0
+    HOLDING_REGISTER = 2
 
 class Model():
-    def __init__(self, id: int, start_address: int, update_interval: int = 1, group: PointGroup = [], label: str=None, description: str=None) -> None:
+    def __init__(self, id: int, start_address: int, update_interval: int = 1, group: PointGroup = [], 
+                 register_type: RegisterType = RegisterType.HOLDING_REGISTER, 
+                 label: str=None, description: str=None) -> None:
         """
         Initializes a Model object.
 
@@ -49,43 +52,46 @@ class Model():
         if not isinstance(group, PointGroup):
             raise TypeError("group must be a PointGroup object.")
         
+        if not isinstance(register_type, RegisterType):
+            raise ValueError("register_type must be a RegisterType object.")
         
-        self.__id = id
-        self.__label = label
-        self.__description = description
-        self.__group = group
+        self._id = id
+        self._label = label
+        self._description = description
+        self._group = group
+        self._register_type = register_type
         # SunSpec extra
-        self.__start_address = start_address
-        self.__total_size = sum(p.get_size() for p in group.get_points())
-        self.__update_interval = update_interval
-        self.__last_update = 0
+        self._start_address = start_address
+        self._total_size = sum(p.get_size() for p in group.get_points())
+        self._update_interval = update_interval
+        self._last_update = 0
     
     def get_id(self) -> str:
-        return self.__id
+        return self._id
 
     def get_label(self) -> str:
-        return self.__label
+        return self._label
 
     def get_description(self) -> str:
-        return self.__description
+        return self._description
 
     def get_group(self) -> PointGroup:
-        return self.__group
+        return self._group
 
     def get_start_address(self) -> int:
-        return self.__start_address
+        return self._start_address
 
     def get_total_size(self) -> int:
-        return self.__total_size
+        return self._total_size
 
     def get_update_interval(self) -> int:
-        return self.__update_interval
+        return self._update_interval
 
     def get_last_update(self):
-        return self.__last_update
+        return self._last_update
 
     def set_last_update(self, val):
-        self.__last_update = val
+        self._last_update = val
 
     def to_dict(self):
         # Cria um dicionário apenas com chaves que têm valores diferentes de None
@@ -95,7 +101,7 @@ class Model():
                 "id": self.get_id(),
                 "label": self.get_label(),
                 "desc": self.get_description(),
-                "group": self.__group.to_dict()
+                "group": self._group.to_dict()
             }.items()
             if value is not None
         }
@@ -114,14 +120,21 @@ class Model():
         
         return data
 
-    def update(self, modbus_client, slave_id, fn_save_data, db_session):
+    def update(self, modbus_client, slave_id, fn_save_data, *args, **kwargs):
         
         if time() - self.get_last_update() < self.get_update_interval():
             return
         
         with modbus_client:
             try:
-                read = modbus_client.read_holding_registers(address=self.get_start_address(), count=self.get_total_size(), slave=slave_id)
+                read = None
+                
+                if self._register_type == RegisterType.HOLDING_REGISTER:
+                    read = modbus_client.read_holding_registers(address=self.get_start_address(), count=self.get_total_size(), slave=slave_id)
+                
+                if self._register_type == RegisterType.INPUT_REGISTER:
+                    read = modbus_client.read_input_registers(address=self.get_start_address(), count=self.get_total_size(), slave=slave_id)
+
                 if (read.isError()):
                     logging.error(f'Slave id {slave_id}. Model: {self.get_group().get_name()}: {read.message}')
                     return
@@ -133,8 +146,8 @@ class Model():
         for point in self.get_group().get_points():
             size = point.get_size()
             value = transformer_value(point.get_type(), registers[0 : size])
-            point.set_value(value)
-            fn_save_data(point=point.get_id(), value=point.get_value(), datetime=time(), session=db_session)
+            point.set_value(value, time())
+            fn_save_data(point, *args, **kwargs)
             del registers[0 : size]
 
         self.set_last_update(time())
